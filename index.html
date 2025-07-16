@@ -1,0 +1,268 @@
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Тест на підбір системи</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f9f9f9;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header, footer {
+      background-color: #003366;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .logo a {
+      text-decoration: none;
+      color: white;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    main > div {
+      background: white;
+      border-radius: 10px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    label {
+      display: block;
+      margin: 0.5rem 0;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 0.5rem;
+      margin: 0.5rem 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      margin-top: 1rem;
+      padding: 0.7rem 1.5rem;
+      background-color: #0066cc;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #004a99;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 0.7rem 1.5rem;
+      background-color: #0066cc;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+
+    #error-message {
+      color: red;
+      margin-bottom: 1rem;
+    }
+
+    @media (max-width: 600px) {
+      main > div {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">
+      <a href="https://cyfrodim.com/">Цифродім</a>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <!-- Тестовий контент з'являється тут -->
+  </main>
+
+  <footer>
+    <p>Контакти: +380 68 682 83 38</p>
+  </footer>
+
+  <script>
+const questions = [
+  {
+    type: "radio",
+    question: "Яка кількість камер вас цікавить?",
+    name: "cameras",
+    options: ["1-2", "2-4", "більше 4 камер"],
+    image: ""
+  },
+  {
+    type: "radio",
+    question: "Оберіть тип приміщення/території",
+    name: "property_type",
+    options: [
+      "Приватний будинок",
+      "Офісне приміщення",
+      "Підприємство",
+      "Квартира",
+      "ОСББ"
+    ],
+    image: ""
+  },
+  {
+    type: "radio",
+    question: "Роздільна здатність камер",
+    name: "resolution",
+    options: ["2 мегапікселі", "4 мегапікселі", "8 мегапікселів", "Залишити без відповіді"],
+    image: ""
+  },
+  {
+    type: "radio",
+    question: "Місцезнаходження об'єкта монтажу",
+    name: "location",
+    options: ["Тернопіль", "Околиці міста Тернопіль (до 10 км)", "Більше 10 км від міста Тернопіль"],
+    image: ""
+  },
+  {
+    type: "contact",
+    question: "Вкажіть будь ласка ваше ім'я та номер телефону",
+    name: "contact",
+    image: ""
+  }
+];
+
+const answers = {};
+let currentIndex = 0;
+const main = document.getElementById("main-content");
+
+function renderQuestion(index) {
+  const q = questions[index];
+  main.innerHTML = "";
+
+  const container = document.createElement("div");
+  const error = document.createElement("p");
+  error.id = "error-message";
+  error.style.color = "red";
+  container.appendChild(error);
+
+  if (q.image) {
+    const img = document.createElement("img");
+    img.src = q.image;
+    container.appendChild(img);
+  }
+
+  const label = document.createElement("p");
+  label.textContent = `${index + 1}. ${q.question}`;
+  container.appendChild(label);
+
+  let input;
+  if (q.type === "radio") {
+    input = document.createElement("div");
+    q.options.forEach(option => {
+      const optionLabel = document.createElement("label");
+      optionLabel.innerHTML = `<input type="radio" name="${q.name}" value="${option}"> ${option}`;
+      input.appendChild(optionLabel);
+    });
+  }
+  else if (q.type === "contact") {
+    input = document.createElement("div");
+    input.innerHTML = `
+      <input type="text" id="name" name="name" placeholder="Ваше ім'я" required><br>
+      <input type="text" id="phone" name="phone" placeholder="Ваш номер телефону" required>
+    `;
+  }
+
+  container.appendChild(input);
+
+  const btn = document.createElement("button");
+  btn.textContent = (index === questions.length - 1) ? "Надіслати" : "Далі";
+  btn.addEventListener("click", () => {
+    const errorEl = document.getElementById("error-message");
+    errorEl.textContent = "";
+    const value = getValue(q);
+    if (!value) {
+      errorEl.textContent = "Будь ласка, заповніть це поле";
+      return;
+    }
+    Object.assign(answers, value);
+    if (index === questions.length - 1) {
+      sendData();
+    } else {
+      renderQuestion(index + 1);
+    }
+  });
+
+  container.appendChild(btn);
+  main.appendChild(container);
+}
+
+function getValue(q) {
+  if (q.type === "radio") {
+    const selected = document.querySelector(`input[name="${q.name}"]:checked`);
+    return selected ? { [q.name]: selected.value } : null;
+  }
+  if (q.type === "contact") {
+    const name = document.getElementById("name").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    if (!name || !phone) return null;
+    return { name, phone };
+  }
+  return null;
+}
+
+function sendData() {
+  const formData = new FormData();
+  for (let key in answers) {
+    formData.append(key, answers[key]);
+  }
+
+  fetch("https://script.google.com/macros/s/AKfycby5tMvcgH7W9LV_uoTqNDIvg3KgmB1Pc619KswaMR03PPRfRoZxWLMILpmQP29AKN6UVQ/exec", {
+    method: "POST",
+    body: formData
+  })
+  .catch(err => {
+    console.error("Помилка при надсиланні:", err);
+  })
+  .finally(() => {
+    showThankYou();
+  });
+}
+
+function showThankYou() {
+  main.innerHTML = `
+    <div>
+      <h2>Дякуємо за надані відповіді!</h2>
+      <p>Наш менеджер скоро з вами зв'яжеться.</p>
+      <p>
+        <a href="https://cyfrodim.com/" class="button">Перейти на сайт</a>
+      </p>
+    </div>
+  `;
+}
+
+renderQuestion(currentIndex);
+  </script>
+</body>
+</html>

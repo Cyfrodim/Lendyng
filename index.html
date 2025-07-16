@@ -81,6 +81,13 @@
       border-radius: 5px;
     }
 
+    main img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin-bottom: 1rem;
+    }
+
     #error-message {
       color: red;
       margin-bottom: 1rem;
@@ -116,7 +123,7 @@ const questions = [
     question: "Яка кількість камер вас цікавить?",
     name: "cameras",
     options: ["1-2", "2-4", "більше 4 камер"],
-    image: ""
+    image: "./img/1.jpg"
   },
   {
     type: "radio",
@@ -129,21 +136,21 @@ const questions = [
       "Квартира",
       "ОСББ"
     ],
-    image: ""
+    image: "./img/2.jpg"
   },
   {
     type: "radio",
     question: "Роздільна здатність камер",
     name: "resolution",
     options: ["2 мегапікселі", "4 мегапікселі", "8 мегапікселів", "Залишити без відповіді"],
-    image: ""
+    image: "./img/3.jpg"
   },
   {
     type: "radio",
     question: "Місцезнаходження об'єкта монтажу",
     name: "location",
     options: ["Тернопіль", "Околиці міста Тернопіль (до 10 км)", "Більше 10 км від міста Тернопіль"],
-    image: ""
+    image: "./img/4.jpg"
   },
   {
     type: "contact",
@@ -237,6 +244,8 @@ function sendData() {
   for (let key in answers) {
     formData.append(key, answers[key]);
   }
+
+  main.innerHTML = "<p>Надсилаємо ваші відповіді...</p>";
 
   fetch("https://script.google.com/macros/s/AKfycby5tMvcgH7W9LV_uoTqNDIvg3KgmB1Pc619KswaMR03PPRfRoZxWLMILpmQP29AKN6UVQ/exec", {
     method: "POST",
